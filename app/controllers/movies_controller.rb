@@ -8,28 +8,38 @@ class MoviesController < ApplicationController
 
   def index
     @all_ratings = Movie.all_ratings
-    if (!params[:ratings].nil?)
-      @ratings_to_show = params[:ratings].keys
+    if (params[:ratings].nil? && params[:sortby].nil?)
+      if (!session[:ratings].nil?)
+        @ratings_to_show = session[:ratings]
+      end
+      if (!session[:sortby].nil?)
+        @sortby = session[:sortby]
+      end
     else
+      if (!params[:ratings].nil?)
+        @ratings_to_show = params[:ratings].keys
+      end
+      if (!params[:sortby].nil?)
+        @sortby = params[:sortby]
+      end
+    end
+    if (@ratings_to_show.nil?)
       @ratings_to_show = @all_ratings
     end
     @rates = Hash[@ratings_to_show.collect{|x| [x, 1]}]
-    if(!params[:sortby].nil?)
-      @movies = Movie.with_ratings(@ratings_to_show).order(params[:sortby])
-      if (params[:sortby] == "title")
+    if(!@sortby.nil?)
+      @movies = Movie.with_ratings(@ratings_to_show).order(@sortby)
+      if (@sortby == "title")
         @titleclass = "hilite bg-warning"
-      else
-        @titleclass = ""
       end
-      if (params[:sortby] == "release_date")
+      if (@sortby == "release_date")
         @rdateclass = "hilite bg-warning"
-      else
-        @rdateclass = ""
       end
-      @sortby = params[:sortby]
     else
       @movies = Movie.with_ratings(@ratings_to_show)
     end
+    session[:ratings] = @ratings_to_show
+    session[:sortby] = @sortby
   end
 
   def new
