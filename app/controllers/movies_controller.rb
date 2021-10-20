@@ -13,7 +13,23 @@ class MoviesController < ApplicationController
     else
       @ratings_to_show = @all_ratings
     end
-    @movies = Movie.with_ratings(@ratings_to_show)
+    @rates = Hash[@ratings_to_show.collect{|x| [x, 1]}]
+    if(!params[:sortby].nil?)
+      @movies = Movie.with_ratings(@ratings_to_show).order(params[:sortby])
+      if (params[:sortby] == "title")
+        @titleclass = "hilite bg-warning"
+      else
+        @titleclass = ""
+      end
+      if (params[:sortby] == "release_date")
+        @rdateclass = "hilite bg-warning"
+      else
+        @rdateclass = ""
+      end
+      @sortby = params[:sortby]
+    else
+      @movies = Movie.with_ratings(@ratings_to_show)
+    end
   end
 
   def new
